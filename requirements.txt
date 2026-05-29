@@ -1,0 +1,4 @@
+Django==5.2
+django-ckeditor-5==0.2.20
+django-taggit==6.1.0
+pillow==12.1.1
