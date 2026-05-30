@@ -13,6 +13,10 @@ function call_sw_alert_func(route, id, message){
       }
       return cookieValue;
     }
+
+    function getCsrfToken() {
+      return getCookie('csrftoken') || $('input[name="csrfmiddlewaretoken"]').first().val() || '';
+    }
     
     swal({
       title: "Are you sure?",
@@ -23,18 +27,15 @@ function call_sw_alert_func(route, id, message){
     })
     .then((willDelete) => {
       if (willDelete) {
-        // var CSRF_TOKEN = `{{ csrf_token() }}`;
-        // console.log(CSRF_TOKEN);
         $.ajax({
             type: 'POST',
             url: route,
-            headers: {'X-CSRFToken': getCookie('csrftoken')},
-            // data : {'_method' : 'DELETE', '_token' : CSRF_TOKEN },
+            headers: {'X-CSRFToken': getCsrfToken()},
             success : function(data) {
               if (route.includes('delete')) { 
                 swal({
                   title: "Delete Done!",
-                  text: "Your Job Was Deleted!",
+                  text: data.message || "Item was deleted.",
                   icon: "success",
                   button: "Done",
                 });
@@ -42,7 +43,7 @@ function call_sw_alert_func(route, id, message){
               }else if(route.includes('close')){
                 swal({
                   title: "Done!",
-                  text: "Your Job was marked closed!",
+                  text: data.message || "Your job was marked closed.",
                   icon: "success",
                   button: "Done",
                 });
@@ -50,11 +51,13 @@ function call_sw_alert_func(route, id, message){
               }
             },
 
-            error : function () {
+            error : function (xhr) {
+                const response = xhr.responseJSON || {};
                 swal({
-                    title: 'Something went wrong !',
-                    // text: data.message,
-                    timer: '1500'
+                    title: 'Action failed',
+                    text: response.message || 'Please refresh the page and try again.',
+                    icon: 'error',
+                    button: 'OK'
                 })
             }
         });

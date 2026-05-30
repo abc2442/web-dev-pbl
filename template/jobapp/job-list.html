@@ -49,6 +49,18 @@
           <p>{{ job.description | safe | truncatechars:150}}</p>
         </a>
       </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="empty-state text-center p-5 bg-white border rounded shadow-sm">
+          <h3 class="mb-2">No jobs available</h3>
+          <p class="mb-4 text-muted">There are no open jobs right now. Please check again later.</p>
+          {% if user.is_authenticated and user.role == 'employer' %}
+          <a href="{% url 'jobapp:create-job' %}" class="btn btn-primary">Post a Job</a>
+          {% else %}
+          <a href="{% url 'jobapp:home' %}" class="btn btn-primary">Go Home</a>
+          {% endif %}
+        </div>
+      </div>
       {% endfor %}
     </div>
     {% include 'jobapp/paginator.html' %}

@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from jobapp.models import Job, Category
+from jobapp.models import Job
 from django.contrib.auth import get_user_model
 import datetime
 
@@ -9,14 +9,12 @@ User = get_user_model()
 class SEOTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(email='test@example.com', password='password', role='employer')
-        self.category = Category.objects.create(name='IT')
         self.job = Job.objects.create(
             user=self.user,
             title='Software Engineer',
             description='Test description for SEO.',
             location='New York',
             job_type='1',
-            category=self.category,
             company_name='Test Company',
             last_date=datetime.date.today() + datetime.timedelta(days=30),
             is_published=True

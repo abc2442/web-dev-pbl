@@ -3,7 +3,7 @@ from jobapp.models import Job
 
 def get_listed_jobs() -> QuerySet[Job]:
     """Return all published jobs that are not closed."""
-    return Job.objects.select_related('category', 'user').filter(
+    return Job.objects.select_related('user').filter(
         is_published=True,
         is_closed=False,
         is_deleted=False,

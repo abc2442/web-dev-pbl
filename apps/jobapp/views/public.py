@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import DetailView, ListView
-from django.db.models import F, Q
+
 from jobapp.models import Job
 from jobapp.selectors import get_listed_jobs, search_jobs
 
@@ -67,7 +68,7 @@ class SingleJobView(DetailView):
 
         owner_filter = Q(user=self.request.user) if self.request.user.is_authenticated else Q(pk__isnull=True)
         visible_jobs = Job.objects.filter(is_deleted=False).filter(
-            Q(is_published=True, is_closed=False) | owner_filter
+            Q(is_published=True) | owner_filter
         )
         job = get_object_or_404(visible_jobs, id=job_id)
 
@@ -78,7 +79,16 @@ class SingleJobView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        related_job_list = self.object.tags.similar_objects()
+        related_job_list = [
+            job for job in self.object.tags.similar_objects()
+            if (
+                isinstance(job, Job)
+                and job.id != self.object.id
+                and job.is_published
+                and not job.is_closed
+                and not job.is_deleted
+            )
+        ]
         paginator = Paginator(related_job_list, 5)
         page_number = self.request.GET.get('page')
         context['page_obj'] = paginator.get_page(page_number)
@@ -98,4 +108,3 @@ class SearchResultView(ListView):
             location=self.request.GET.get('location'),
             job_type=self.request.GET.get('job_type'),
         )
-

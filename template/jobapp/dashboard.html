@@ -24,6 +24,7 @@
         <div class="row">
             <div class="col-lg-12 mb-5">
                 {% include 'messages.html' %}
+                <form class="d-none">{% csrf_token %}</form>
 
                 <div class="card">
                     {% if user.role == "employer" %}
@@ -194,13 +195,10 @@
         </div>
 
     </div>
-    </div>
 </section>
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{% static 'js/sweet-alert.js' %}"></script>
-    <script src="{% static 'js/sweet-alert-ajax.js' %}"></script>
+    <script src="{% static 'js/sweet-alert-ajax.js' %}?v=2.0.1"></script>
 {% endblock %}
-
-

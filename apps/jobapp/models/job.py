@@ -28,13 +28,6 @@ EXPERIENCE_LEVEL = (
 )
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
 class Job(TimeStampedModel, SoftDeleteModel):
     user = models.ForeignKey(User, related_name='User', on_delete=models.CASCADE)
     title = models.CharField(max_length=300, db_index=True)
@@ -44,7 +37,6 @@ class Job(TimeStampedModel, SoftDeleteModel):
     job_type = models.CharField(choices=JOB_TYPE, max_length=1, db_index=True)
     work_mode = models.CharField(choices=WORK_MODE, max_length=1, default='3')
     experience_level = models.CharField(choices=EXPERIENCE_LEVEL, max_length=1, default='0')
-    category = models.ForeignKey(Category, related_name='Category', on_delete=models.CASCADE)
     salary = models.CharField(max_length=30, blank=True)
     views_count = models.PositiveIntegerField(default=0)
     company_name = models.CharField(max_length=300, db_index=True)
@@ -62,4 +54,3 @@ class Job(TimeStampedModel, SoftDeleteModel):
             models.Index(fields=['title', 'location']),
             models.Index(fields=['is_published', 'is_closed']),
         ]
-

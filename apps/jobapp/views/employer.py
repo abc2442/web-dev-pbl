@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -12,7 +13,7 @@ from django.views.generic import (
 )
 
 from jobapp.forms import JobEditForm, JobForm
-from jobapp.models import Applicant, Category, Job
+from jobapp.models import Applicant, Job
 from jobapp.permission import EmployerRequiredMixin
 from jobapp.services import toggle_job_status
 
@@ -32,7 +33,6 @@ class CreateJobView(EmployerRequiredMixin, CreateView):
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.user = self.request.user
-        instance.category, _ = Category.objects.get_or_create(name='General')
         instance.is_published = True
         instance.save()
         form.save_m2m()
@@ -52,7 +52,6 @@ class JobEditView(EmployerRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
         return context
 
     def form_valid(self, form):
@@ -72,6 +71,9 @@ class DeleteJobView(EmployerRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Your Job Post was successfully deleted!')
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            self.object.delete()
+            return JsonResponse({'success': True, 'message': 'Job post was deleted.'})
         return super().form_valid(form)
 
 
@@ -81,8 +83,12 @@ class MakeCompleteJobView(EmployerRequiredMixin, View):
         try:
             toggle_job_status(request.user.id, id)
             messages.success(request, 'Your Job was marked closed!')
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Job was marked closed.'})
         except Exception:
             messages.error(request, 'Something went wrong!')
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': 'Could not update this job.'}, status=400)
         return redirect('jobapp:dashboard')
 
 

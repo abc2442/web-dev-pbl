@@ -49,6 +49,14 @@
           <p>{{ job.description | safe | truncatechars:100}}</p>
         </a>
       </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="empty-state text-center p-5 bg-white border rounded shadow-sm">
+          <h3 class="mb-2">No jobs found</h3>
+          <p class="mb-4 text-muted">Try a different keyword, location, or job type.</p>
+          <a href="{% url 'jobapp:job-list' %}" class="btn btn-primary">Browse All Jobs</a>
+        </div>
+      </div>
       {% endfor %}
     </div>
 

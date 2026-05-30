@@ -32,14 +32,14 @@
                     class="text-muted text-capitalize">(Employer)</small>
                 {% endif %}
             </h2>
+            {% if profile_type == 'employee' %}
             <div class="social-links d-flex gap-2">
-                {% if profile_type == 'employee' %}
                 {% if profile.social_linkedin %}<a href="{{ profile.social_linkedin }}" target="_blank"
                     class="btn btn-outline-primary btn-sm px-3"><i class="fab fa-linkedin mr-1"></i> LinkedIn</a>{% endif %}
                 {% if profile.social_github %}<a href="{{ profile.social_github }}" target="_blank"
                     class="btn btn-outline-dark btn-sm px-3"><i class="fab fa-github mr-1"></i> GitHub</a>{% endif %}
-                {% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 </div>

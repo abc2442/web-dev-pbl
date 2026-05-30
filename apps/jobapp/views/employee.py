@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.http import JsonResponse
+from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DeleteView, View
@@ -51,6 +53,9 @@ class DeleteBookmarkView(EmployeeRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Saved Job was successfully deleted!')
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            self.object.delete()
+            return JsonResponse({'success': True, 'message': 'Saved job was removed.'})
         return super().form_valid(form)
 
 
@@ -63,9 +68,16 @@ class JobBookmarkView(EmployeeRequiredMixin, View):
         user = request.user
         job = get_open_job_or_404(id)
         form = JobBookmarkForm(request.POST)
+        bookmark = BookmarkJob.objects.filter(user=user, job=job).first()
 
-        if BookmarkJob.objects.filter(user=user, job=job).exists():
+        if bookmark and not bookmark.is_deleted:
             messages.error(request, 'You already saved this Job!')
+        elif bookmark and form.is_valid():
+            bookmark.is_deleted = False
+            bookmark.deleted_at = None
+            bookmark.updated_at = timezone.now()
+            bookmark.save(update_fields=['is_deleted', 'deleted_at', 'updated_at'])
+            messages.success(request, 'You have successfully saved this job!')
         elif form.is_valid():
             BookmarkJob.objects.create(user=user, job=job)
             messages.success(request, 'You have successfully saved this job!')
@@ -74,5 +86,3 @@ class JobBookmarkView(EmployeeRequiredMixin, View):
 
     def get(self, request, id):
         return redirect(reverse('jobapp:single-job', kwargs={'id': id}))
-
-

@@ -71,11 +71,8 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a class="btn btn-info btn-sm" href="{% url 'jobapp:applicant-details' applicant.user.id %}">
-                                            Details
-                                        </a>
-                                        <a class="btn btn-outline-info btn-sm" href="{% url 'account:candidate-profile' applicant.user.id %}">
-                                            Full Profile
+                                        <a class="btn btn-info btn-sm" href="{% url 'account:candidate-profile' applicant.user.id %}">
+                                            View
                                         </a>
                                     </td>
                                     <td>
